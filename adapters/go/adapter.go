@@ -78,8 +78,7 @@ func getToFormat(o RequestOptions) (string, error) {
 		return "", fmt.Errorf("Unsupported target case: %s", label)
 	}
 
-	// TODO: provided base case to prevent compiler from complaining.
-	return "", fmt.Errorf("No identifier given, provide --to or direct-to case")
+	return to, nil
 }
 
 // tokenize breaks an identifier into lowercase word tokens, regardless of

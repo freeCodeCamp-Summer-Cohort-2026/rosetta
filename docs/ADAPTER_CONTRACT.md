@@ -94,10 +94,18 @@ need to support persistent/streaming operation.
 | `input`            | string            | The raw text to transform.                                                                     |
 | `options.to`       | string            | Required for `convert`. Target case style: one of `snake`, `camel`, `pascal`, `kebab`.          |
 | `options.from`     | string or null    | Optional hint for the source case style (same enum as `to`). Adapters may use it or auto-detect. |
+| `options.camel`     | boolean or null    | Optional hint to force assume `camel` instead of `to` flag |
+| `options.snake`     | boolean or null    | Optional hint to force assume `snake` instead of `to` flag |
+| `options.pascal`     | boolean or null    | Optional hint to force assume `pascal` instead of `to` flag |
+| `options.kebab`     | boolean  or null    | Optional hint to force assume `kebab` instead of `to` flag |
 
 Adapters should validate the request defensively - malformed JSON, missing
 fields, and unsupported values are all expected inputs from a fuzzing/CI
 point of view, not edge cases to ignore.
+
+**note** about mixing `to` and "direct-to" flags such as `camel`.
+- if `to` is passed along with any of the `camel` or `snake` cases, this should be **an error**. As of the writing of this doc this is **not fully fleshed out or tested**.
+**note** about "direct-to" support, only the `go-adapter` supports this, the PHP one does not. This can be another issue cloned from #2
 
 ## 5. Response schema
 

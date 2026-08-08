@@ -18,8 +18,55 @@ const {
 const ADAPTERS_DIR = path.join(__dirname, '..', 'adapters');
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 
-function convertPayload(input, to, from) {
-  return { operation: 'convert', input, options: { from: from || null, to } };
+
+/**
+ * Helper function to define data passed into the the runAdapter function.
+ *
+ * There's two ways to call this, the "three argument" way where 3 arguments are passed
+ * - input
+ * - to
+ * - from
+ * or the single param way using just the first argument.
+ *
+ * @param {string | {
+ *   input: string
+ *   to?: string;
+ *   from: string;
+ *   camel?: boolean;
+ *   kebab?: boolean;
+ *   pascal?: boolean;
+ *   snake?: boolean;
+ * }} inputOrKwargs the string input OR the named "key word arguments", variable name taken from python. If named arguments are given this param will be used instead of the other params.
+ * @param {string} [to] the "to" argument, ignored if inputOrKwargs is provided as an object
+ * @param {string} [from] the "from" argument, ignored if inputOrKwargs is provided as an object
+ * @returns
+ */
+function convertPayload(inputOrKwargs, to, from) {
+	if (
+		inputOrKwargs &&
+		typeof inputOrKwargs !== "string" &&
+		typeof inputOrKwargs === "object"
+	) {
+    const { from, input, to, camel, kebab, pascal, snake } = inputOrKwargs;
+
+    // **note** its possible to support passing multiple values
+    // which may be considered invalid by the adapter as this could
+    // also be invalid for the top level nodejs implementation.
+    // For testing we allow it as-is
+    return {
+			operation: "convert",
+      input,
+      options: {
+        from,
+        to,
+        camel,
+        kebab,
+        pascal,
+        snake
+      }
+		};
+	}
+	return { operation: "convert", input: inputOrKwargs, options: { from: from || null, to } };
 }
 
 test('discoverAdapters finds the reference adapters', () => {
@@ -87,12 +134,30 @@ test('Go adapter converts camelCase to snake_case', async () => {
   assert.equal(result.output, 'hello_world_example');
 });
 
+test("Go adapter converts direct-to camel flag to camelCase from snake_case", async () => {
+	const adapter = findAdapter(ADAPTERS_DIR, "go-case-converter");
+	const result = await runAdapter(
+		adapter,
+		convertPayload({
+			input: "hello_world_example",
+			camel: true,
+			from: "snake",
+		}),
+	);
+	assert.equal(result.error, null);
+	assert.equal(result.output, "helloWorldExample");
+});
+
+// TODO: add other direct-to cases
+
 test('Go adapter reports a handled error for an unsupported target case', async () => {
   const adapter = findAdapter(ADAPTERS_DIR, 'go-case-converter');
   const result = await runAdapter(adapter, convertPayload('hello_world', 'not-a-style', 'snake'));
   assert.equal(result.output, null);
   assert.ok(result.error);
 });
+
+// TODO: adapter edge-cases using a mix of direct-to
 
 test('Go adapter reports a handled error for empty input', async () => {
   const adapter = findAdapter(ADAPTERS_DIR, 'go-case-converter');
