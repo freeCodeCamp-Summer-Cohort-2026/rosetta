@@ -19,10 +19,21 @@ import (
 	"unicode"
 )
 
+// The RequestOptions passed in from the primary nodejs converter code.
+// To or one of the four "direct-to" types are required
+type RequestOptions struct {
+	To     string `json:"to"`
+	From   string `json:"from"`
+	Pascal bool   `json:"pascal"`
+	Kebab  bool   `json:"kebab"`
+	Snake  bool   `json:"snake"`
+	Camel  bool   `json:"camel"`
+}
+
 type request struct {
-	Operation string                 `json:"operation"`
-	Input     string                 `json:"input"`
-	Options   map[string]interface{} `json:"options"`
+	Operation string         `json:"operation"`
+	Input     string         `json:"input"`
+	Options   RequestOptions `json:"options"`
 }
 
 type response struct {
@@ -32,6 +43,43 @@ type response struct {
 
 var validStyles = map[string]bool{
 	"snake": true, "camel": true, "pascal": true, "kebab": true,
+}
+
+// Calculates the to format from either the direct "to" option value or
+// from the direct to values. If an invalid state is passed, then
+// the first value will return an empty string, and the second an error
+func getToFormat(o RequestOptions) (string, error) {
+	to := o.To
+
+	// direct cases
+	pascal, camel, snake, kebab := o.Pascal, o.Camel, o.Snake, o.Kebab
+
+	// TODO: move to exclusive "or", or throw if multiple set.
+	// meantime, just use the first one in alphabetical order
+	if camel {
+		return "camel", nil
+	}
+	if kebab {
+		return "kebab", nil
+	}
+	if pascal {
+		return "pascal", nil
+	}
+	if snake {
+		return "snake", nil
+	}
+
+	if styleForToOption := validStyles[to]; !styleForToOption {
+		// if invalid "to" format is given return unsupported target case
+		label := to
+		if label == "" {
+			label = "null"
+		}
+		return "", fmt.Errorf("Unsupported target case: %s", label)
+	}
+
+	// TODO: provided base case to prevent compiler from complaining.
+	return "", fmt.Errorf("No identifier given, provide --to or direct-to case")
 }
 
 // tokenize breaks an identifier into lowercase word tokens, regardless of
@@ -119,16 +167,15 @@ func handle(req request) response {
 		return errorResponse("input must be a non-empty string")
 	}
 
-	to, _ := req.Options["to"].(string)
-	from, _ := req.Options["from"].(string)
+	options := req.Options
 
-	if !validStyles[to] {
-		label := to
-		if label == "" {
-			label = "null"
-		}
-		return errorResponse(fmt.Sprintf("unsupported target case: %s", label))
+	to, toErr := getToFormat(req.Options)
+	if toErr != nil {
+		return errorResponse(toErr.Error())
 	}
+
+	from := options.From
+
 	if from != "" && !validStyles[from] {
 		return errorResponse(fmt.Sprintf("unsupported source case: %s", from))
 	}

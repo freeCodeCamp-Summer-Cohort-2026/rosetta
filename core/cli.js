@@ -19,7 +19,7 @@ Usage:
   rosetta list
       List all discovered adapters.
 
-  rosetta convert --adapter <name> --to <style> [--from <style>] (--input <string> | --file <path>)
+  rosetta convert --adapter <name> [--to <style> | --camel | --snake | --kebab | --pascal] [--from <style>] (--input <string> | --file <path>)
       Convert an identifier's case style using the named adapter.
 
       <style> is one of: ${VALID_CASE_STYLES.join(', ')}
@@ -73,7 +73,18 @@ function listAdapters() {
 }
 
 async function convert(flags) {
-  const { adapter: adapterId, from, to, input, file } = flags;
+	const {
+		adapter: adapterId,
+		from,
+		to,
+		input,
+		file,
+		// these flags override the to flag
+		camel,
+		snake,
+		pascal,
+		kebab,
+	} = flags;
 
   if (!adapterId || typeof adapterId !== 'string') {
     console.error(
@@ -83,13 +94,18 @@ async function convert(flags) {
     return;
   }
 
-  if (!to || typeof to !== 'string' || !VALID_CASE_STYLES.includes(to)) {
-    console.error(
-      `Error: --to <style> is required and must be one of: ${VALID_CASE_STYLES.join(', ')}`
-    );
-    process.exitCode = 1;
-    return;
-  }
+  const missingToFlag = !to || typeof to !== "string" || !VALID_CASE_STYLES.includes(to);
+  const hasDirectToFlag = !!(camel || snake || pascal || kebab);
+
+	if (missingToFlag && !hasDirectToFlag) {
+		// if the to flag was not passed and none of the "direct to" flags were passed then
+		// this will throw
+		console.error(
+			`Error: --to <style> is required and must be one of: ${VALID_CASE_STYLES.join(", ")}, or one of the direct flags must be passed such as --camel or --pascal`,
+		);
+		process.exitCode = 1;
+		return;
+	}
 
   let text = typeof input === 'string' ? input : undefined;
   if (file) {
@@ -122,7 +138,15 @@ async function convert(flags) {
   const payload = {
     operation: 'convert',
     input: text,
-    options: { from: typeof from === 'string' ? from : null, to },
+    options: {
+      from: typeof from === 'string' ? from : null,
+      to,
+      // main direct-to flags passed as-is to adapter
+      camel,
+      snake,
+      pascal,
+      kebab,
+    },
   };
 
   const result = await runAdapter(adapter, payload);
