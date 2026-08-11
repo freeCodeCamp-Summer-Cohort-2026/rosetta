@@ -5,3 +5,7 @@ node_modules/
 # Compiled adapter binaries, if a contributor builds instead of `go run`
 adapters/go/adapter
 adapters/go/*.exe
+
+# zed editor specific settings
+codebook.toml
+.zed/*
