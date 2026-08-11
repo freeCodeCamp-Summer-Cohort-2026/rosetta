@@ -73,18 +73,18 @@ function listAdapters() {
 }
 
 async function convert(flags) {
-	const {
-		adapter: adapterId,
-		from,
-		to,
-		input,
-		file,
-		// these flags override the to flag
-		camel,
-		snake,
-		pascal,
-		kebab,
-	} = flags;
+  const {
+    adapter: adapterId,
+    from,
+    to,
+    input,
+    file,
+    // these flags override the to flag
+    camel,
+    snake,
+    pascal,
+    kebab,
+  } = flags;
 
   if (!adapterId || typeof adapterId !== 'string') {
     console.error(
@@ -97,15 +97,15 @@ async function convert(flags) {
   const missingToFlag = !to || typeof to !== "string" || !VALID_CASE_STYLES.includes(to);
   const hasDirectToFlag = !!(camel || snake || pascal || kebab);
 
-	if (missingToFlag && !hasDirectToFlag) {
-		// if the to flag was not passed and none of the "direct to" flags were passed then
-		// this will throw
-		console.error(
-			`Error: --to <style> is required and must be one of: ${VALID_CASE_STYLES.join(", ")}, or one of the direct flags must be passed such as --camel or --pascal`,
-		);
-		process.exitCode = 1;
-		return;
-	}
+  if (missingToFlag && !hasDirectToFlag) {
+    // if the to flag was not passed and none of the "direct to" flags were passed then
+    // this will throw
+    console.error(
+      `Error: --to <style> is required and must be one of: ${VALID_CASE_STYLES.join(", ")}, or one of the direct flags must be passed such as --camel or --pascal`,
+    );
+    process.exitCode = 1;
+    return;
+  }
 
   let text = typeof input === 'string' ? input : undefined;
   if (file) {
