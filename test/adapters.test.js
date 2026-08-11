@@ -9,6 +9,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
+const {execSync} = require('node:child_process');
+
 const {
   discoverAdapters,
   findAdapter,
@@ -122,4 +124,10 @@ test('core.runAdapter surfaces a graceful error when an adapter returns non-JSON
 test('core.findAdapter returns undefined for an unknown adapter name', () => {
   const adapter = findAdapter(ADAPTERS_DIR, 'does-not-exist');
   assert.equal(adapter, undefined);
+});
+
+test('cli --list-adapters lists all adapters', () => {
+  const result = execSync('node core/cli.js --list-adapters').toString();
+  assert.ok(result.includes('php-case-converter'), 'php-case-converter should be listed');
+  assert.ok(result.includes('go-case-converter'), 'go-case-converter should be listed');
 });

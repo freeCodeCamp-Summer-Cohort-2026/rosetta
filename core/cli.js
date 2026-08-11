@@ -145,7 +145,7 @@ async function main() {
     return;
   }
 
-  if (command === 'list') {
+  if (command === 'list' || command === "--list-adapters") {
     listAdapters();
     return;
   }
