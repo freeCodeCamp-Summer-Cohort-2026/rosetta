@@ -132,6 +132,19 @@ async function convert(flags) {
 
   if (typeof pipeline === 'string') {
     const stageStrings = pipeline.split(',');
+    const invalidStageIndex = stageStrings.findIndex((stageString) => {
+      const stageParts = stageString.split(':');
+      return stageParts.length !== 2 || stageParts.some((stagePart) => !stagePart);
+    });
+
+    if (invalidStageIndex !== -1) {
+      console.error(
+        `Error: pipeline stage ${invalidStageIndex + 1} must use the format adapter:style`
+      );
+      process.exitCode = 1;
+      return;
+    }
+
     const stages = stageStrings.map((stageString) => {
       const [adapterName, targetStyle] = stageString.split(':');
       const adapter = findAdapter(ADAPTERS_DIR, adapterName);
