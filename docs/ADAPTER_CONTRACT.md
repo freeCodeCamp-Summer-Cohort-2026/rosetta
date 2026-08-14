@@ -160,7 +160,33 @@ Both implement the exact same `convert` operation (case conversion between
 `snake`, `camel`, `pascal`, and `kebab`), so you can diff them against each
 other to see how the same contract looks in two different languages.
 
-## 7. Adding a new adapter
+## 7. Pipeline syntax
+
+`--pipeline` chains together two or more adapters and uses comma-separated
+`adapter:style` stages.
+
+```bash
+rosetta convert --pipeline php-case-converter:camel,go-case-converter:kebab --input hello_world
+```
+
+The above command sends `hello_world` to the PHP adapter targeting `camel`,
+then sends the PHP output to the Go adapter targeting `kebab`. Finally,
+the Go output is printed as `hello-world`.
+
+Pipeline support does **not** change the request or response schemas.
+Every stage launches an adapter using the existing contract. `operation`
+remains `convert`, `input` is the current pipeline value, `options.to` comes
+from the current stage's `style`, and `options.from` is currently `null`.
+Each adapter still handles one request per subprocess invocation.
+
+For `--pipeline` to operate correctly, at least two stages are required. Every
+stage must use `adapter:style` and the adapter must exist. `style` must be
+one of: `snake`, `camel`, `pascal`, or `kebab`. Stages are executed from
+left to right and processing stops at the first adapter error. Errors
+identify the one-based stage number and adapter name. Subsequent stages
+do **not** run after failure.
+
+## 8. Adding a new adapter
 
 See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the full checklist, but in
 short: create `adapters/<language>/`, add an `adapter.json`, implement the

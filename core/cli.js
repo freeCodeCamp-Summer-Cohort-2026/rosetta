@@ -24,6 +24,11 @@ Usage:
 
       <style> is one of: ${VALID_CASE_STYLES.join(', ')}
 
+  rosetta convert --pipeline <adapter:style,adapter:style,...> (--input <string> | --file <path>)
+      The pipeline requires at least two comma-separated stages, which run from left to right.
+      The first stage receives the provided input.
+      Each later stage receives the preceding stage's output.
+
   rosetta help
       Show this message.
 
@@ -31,6 +36,7 @@ Examples:
   rosetta list
   rosetta convert --adapter php-case-converter --from snake --to camel --input hello_world
   rosetta convert --adapter go-case-converter --to pascal --file ./identifiers.txt
+  rosetta convert --pipeline php-case-converter:camel,go-case-converter:kebab --input hello_world
 
 Adapters are discovered under adapters/<language>/adapter.json. See
 docs/ADAPTER_CONTRACT.md for the full stdin/stdout JSON contract, and
@@ -132,6 +138,15 @@ async function convert(flags) {
 
   if (typeof pipeline === 'string') {
     const stageStrings = pipeline.split(',');
+
+    if (stageStrings.length < 2) {
+      console.error(
+        'Error: pipeline requires at least two stages'
+      );
+      process.exitCode = 1;
+      return;
+    }
+
     const invalidStageIndex = stageStrings.findIndex((stageString) => {
       const stageParts = stageString.split(':');
       return stageParts.length !== 2 || stageParts.some((stagePart) => !stagePart);

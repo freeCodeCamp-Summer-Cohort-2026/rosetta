@@ -39,3 +39,14 @@ test('cli identifies a pipeline stage that fails during execution', () => {
     execSync('node core/cli.js convert --pipeline php-case-converter:camel,go-case-converter:invalid-style --input hello_world');
   }, /pipeline stage 2 adapter "go-case-converter" failed: Unsupported target case: invalid-style/);
 });
+
+test('cli rejects a pipeline with fewer than two stages', () => {
+  assert.throws(() => {
+    execSync('node core/cli.js convert --pipeline php-case-converter:camel --input hello_world');
+  }, /pipeline requires at least two stages/);
+});
+
+test('cli help documents pipeline usage', () => {
+  const helpOutput = execSync('node core/cli.js --help').toString();
+  assert.match(helpOutput, /rosetta convert --pipeline/);
+});
