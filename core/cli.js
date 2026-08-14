@@ -156,9 +156,21 @@ async function convert(flags) {
       };
     });
 
+    const unknownAdapterIndex = stages.findIndex((stage) => {
+      return !stage.adapter;
+    });
+
+    if (unknownAdapterIndex !== -1) {
+      console.error(
+        `Error: pipeline stage ${unknownAdapterIndex + 1} adapter "${stages[unknownAdapterIndex].adapterName}" was not found`
+      );
+      process.exitCode = 1;
+      return;
+    }
+
     let currentText = text;
 
-    for (const stage of stages) {
+    for (const [stageIndex, stage] of stages.entries()) {
       const payload = {
         operation: 'convert',
         input: currentText,
@@ -168,6 +180,13 @@ async function convert(flags) {
         },
       };
       const result = await runAdapter(stage.adapter, payload);
+      if (result.error) {
+        console.error(
+          `Error: pipeline stage ${stageIndex + 1} adapter "${stage.adapterName}" failed: ${result.error}`
+        );
+        process.exitCode = 1;
+        return;
+      }
       currentText = result.output;
     }
     console.log(currentText);

@@ -27,3 +27,15 @@ test('cli rejects a pipeline stage with an empty target style', () => {
     execSync('node core/cli.js convert --pipeline php-case-converter:,go-case-converter:kebab --input hello_world');
   }, /pipeline stage 1 must use the format adapter:style/);
 });
+
+test('cli identifies a pipeline stage with an unknown adapter', () => {
+  assert.throws(() => {
+    execSync('node core/cli.js convert --pipeline php-case-converter:camel,missing-adapter:kebab --input hello_world');
+  }, /pipeline stage 2 adapter "missing-adapter" was not found/);
+});
+
+test('cli identifies a pipeline stage that fails during execution', () => {
+  assert.throws(() => {
+    execSync('node core/cli.js convert --pipeline php-case-converter:camel,go-case-converter:invalid-style --input hello_world');
+  }, /pipeline stage 2 adapter "go-case-converter" failed: Unsupported target case: invalid-style/);
+});
