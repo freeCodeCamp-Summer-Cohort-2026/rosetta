@@ -81,9 +81,9 @@ func GetToFormat(o RequestOptions) (string, error) {
 	return to, nil
 }
 
-// tokenize breaks an identifier into lowercase word tokens, regardless of
+// Tokenize breaks an identifier into lowercase word tokens, regardless of
 // its original case style.
-func tokenize(identifier string) []string {
+func Tokenize(identifier string) []string {
 	identifier = strings.TrimSpace(identifier)
 
 	var parts []string
@@ -180,7 +180,7 @@ func handle(req request) response {
 		return errorResponse(fmt.Sprintf("unsupported source case: %s", from))
 	}
 
-	tokens := tokenize(req.Input)
+	tokens := Tokenize(req.Input)
 	if len(tokens) == 0 {
 		return errorResponse("could not tokenize input")
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -131,5 +132,53 @@ func TestCapitalizeHandlesEmptyString(t *testing.T) {
 
 	if w != "" {
 		t.Error("Capitalize(\"\") did not return \"\"")
+	}
+}
+
+func TestTokenize(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []string
+	}{
+		{
+			name:     "snake_case splits on underscores",
+			input:    "hello_world_foo",
+			expected: []string{"hello", "world", "foo"},
+		},
+		{
+			name:     "kebab-case splits on hyphens",
+			input:    "hello-world-foo",
+			expected: []string{"hello", "world", "foo"},
+		},
+		{
+			name:     "camelCase splits on uppercase boundaries",
+			input:    "helloWorldFoo",
+			expected: []string{"hello", "world", "foo"},
+		},
+		{
+			name:     "PascalCase splits on uppercase boundaries",
+			input:    "HelloWorldFoo",
+			expected: []string{"hello", "world", "foo"},
+		},
+		{
+			name:     "single word returns single token",
+			input:    "hello",
+			expected: []string{"hello"},
+		},
+		{
+			name:     "leading and trailing whitespace is trimmed",
+			input:    "  hello_world  ",
+			expected: []string{"hello", "world"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Tokenize(tt.input)
+			if !reflect.DeepEqual(got, tt.expected) {
+				t.Errorf("Tokenize(%q) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
 	}
 }
