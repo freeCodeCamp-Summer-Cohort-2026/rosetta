@@ -117,3 +117,19 @@ func TestGetToFormatReturnsSnakeIfGivenSnakeDirectly(t *testing.T) {
 		t.Errorf("GetToFormat({Snake: true}) did not return snake, it returned %s", toFormat)
 	}
 }
+
+func TestCapitalizeWorks(t *testing.T) {
+	w := Capitalize("hello")
+
+	if w != "Hello" {
+		t.Error("Capitalize(\"hello\") did not return \"Hello\"")
+	}
+}
+
+func TestCapitalizeHandlesEmptyString(t *testing.T) {
+	w := Capitalize("")
+
+	if w != "" {
+		t.Error("Capitalize(\"\") did not return \"\"")
+	}
+}

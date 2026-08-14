@@ -114,7 +114,8 @@ func tokenize(identifier string) []string {
 	return tokens
 }
 
-func capitalize(s string) string {
+// Capitalizes the first letter in the unicode string
+func Capitalize(s string) string {
 	if s == "" {
 		return s
 	}
@@ -135,14 +136,14 @@ func joinTokens(tokens []string, style string) (string, error) {
 			if i == 0 {
 				b.WriteString(t)
 			} else {
-				b.WriteString(capitalize(t))
+				b.WriteString(Capitalize(t))
 			}
 		}
 		return b.String(), nil
 	case "pascal":
 		var b strings.Builder
 		for _, t := range tokens {
-			b.WriteString(capitalize(t))
+			b.WriteString(Capitalize(t))
 		}
 		return b.String(), nil
 	default:
