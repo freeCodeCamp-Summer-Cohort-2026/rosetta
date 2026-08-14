@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-'use strict';
+"use strict";
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 const {
   discoverAdapters,
   findAdapter,
   runAdapter,
   VALID_CASE_STYLES,
-} = require('./lib/adapters');
+} = require("./lib/adapters");
 
-const ADAPTERS_DIR = path.join(__dirname, '..', 'adapters');
+const ADAPTERS_DIR = path.join(__dirname, "..", "adapters");
 
 function printHelp() {
   console.log(`Rosetta - a language-agnostic identifier case-conversion CLI
@@ -22,7 +22,7 @@ Usage:
   rosetta convert --adapter <name> [--to <style> | --camel | --snake | --kebab | --pascal] [--from <style>] (--input <string> | --file <path>)
       Convert an identifier's case style using the named adapter.
 
-      <style> is one of: ${VALID_CASE_STYLES.join(', ')}
+      <style> is one of: ${VALID_CASE_STYLES.join(", ")}
 
   rosetta convert --pipeline <adapter:style,adapter:style,...> (--input <string> | --file <path>)
       The pipeline requires at least two comma-separated stages, which run from left to right.
@@ -48,10 +48,10 @@ function parseFlags(argv) {
   const flags = {};
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg.startsWith('--')) {
+    if (arg.startsWith("--")) {
       const key = arg.slice(2);
       const next = argv[i + 1];
-      if (next === undefined || next.startsWith('--')) {
+      if (next === undefined || next.startsWith("--")) {
         flags[key] = true;
       } else {
         flags[key] = next;
@@ -65,16 +65,16 @@ function parseFlags(argv) {
 function listAdapters() {
   const adapters = discoverAdapters(ADAPTERS_DIR);
   if (adapters.length === 0) {
-    console.log('No adapters found in adapters/.');
+    console.log("No adapters found in adapters/.");
     return;
   }
   console.log(`Found ${adapters.length} adapter(s):\n`);
   for (const adapter of adapters) {
     const { name, language, description, run } = adapter.manifest;
-    console.log(`  ${name}${language ? ` (${language})` : ''}`);
+    console.log(`  ${name}${language ? ` (${language})` : ""}`);
     if (description) console.log(`    ${description}`);
     console.log(`    run: ${run}`);
-    console.log('');
+    console.log("");
   }
 }
 
@@ -94,20 +94,21 @@ async function convert(flags) {
   } = flags;
 
   if (
-    (!adapterId || typeof adapterId !== 'string') &&
-    (!pipeline || typeof pipeline !== 'string')
+    (!adapterId || typeof adapterId !== "string") &&
+    (!pipeline || typeof pipeline !== "string")
   ) {
     console.error(
-      'Error: --adapter <name> is required. Run `rosetta list` to see available adapters.'
+      "Error: --adapter <name> is required. Run `rosetta list` to see available adapters.",
     );
     process.exitCode = 1;
     return;
   }
 
-  const missingToFlag = !to || typeof to !== "string" || !VALID_CASE_STYLES.includes(to);
+  const missingToFlag =
+    !to || typeof to !== "string" || !VALID_CASE_STYLES.includes(to);
   const hasDirectToFlag = !!(camel || snake || pascal || kebab);
 
-  if (typeof pipeline !== 'string' && missingToFlag && !hasDirectToFlag) {
+  if (typeof pipeline !== "string" && missingToFlag && !hasDirectToFlag) {
     // if the to flag was not passed and none of the "direct to" flags were passed then
     // this will throw
     console.error(
@@ -117,10 +118,10 @@ async function convert(flags) {
     return;
   }
 
-  let text = typeof input === 'string' ? input : undefined;
+  let text = typeof input === "string" ? input : undefined;
   if (file) {
     try {
-      text = fs.readFileSync(file, 'utf8').trim();
+      text = fs.readFileSync(file, "utf8").trim();
     } catch (err) {
       console.error(`Error: could not read --file "${file}": ${err.message}`);
       process.exitCode = 1;
@@ -130,38 +131,38 @@ async function convert(flags) {
 
   if (!text) {
     console.error(
-      'Error: provide input via --input <string> or --file <path>.'
+      "Error: provide input via --input <string> or --file <path>.",
     );
     process.exitCode = 1;
     return;
   }
 
-  if (typeof pipeline === 'string') {
-    const stageStrings = pipeline.split(',');
+  if (typeof pipeline === "string") {
+    const stageStrings = pipeline.split(",");
 
     if (stageStrings.length < 2) {
-      console.error(
-        'Error: pipeline requires at least two stages'
-      );
+      console.error("Error: pipeline requires at least two stages");
       process.exitCode = 1;
       return;
     }
 
     const invalidStageIndex = stageStrings.findIndex((stageString) => {
-      const stageParts = stageString.split(':');
-      return stageParts.length !== 2 || stageParts.some((stagePart) => !stagePart);
+      const stageParts = stageString.split(":");
+      return (
+        stageParts.length !== 2 || stageParts.some((stagePart) => !stagePart)
+      );
     });
 
     if (invalidStageIndex !== -1) {
       console.error(
-        `Error: pipeline stage ${invalidStageIndex + 1} must use the format adapter:style`
+        `Error: pipeline stage ${invalidStageIndex + 1} must use the format adapter:style`,
       );
       process.exitCode = 1;
       return;
     }
 
     const stages = stageStrings.map((stageString) => {
-      const [adapterName, targetStyle] = stageString.split(':');
+      const [adapterName, targetStyle] = stageString.split(":");
       const adapter = findAdapter(ADAPTERS_DIR, adapterName);
 
       return {
@@ -177,7 +178,7 @@ async function convert(flags) {
 
     if (unknownAdapterIndex !== -1) {
       console.error(
-        `Error: pipeline stage ${unknownAdapterIndex + 1} adapter "${stages[unknownAdapterIndex].adapterName}" was not found`
+        `Error: pipeline stage ${unknownAdapterIndex + 1} adapter "${stages[unknownAdapterIndex].adapterName}" was not found`,
       );
       process.exitCode = 1;
       return;
@@ -187,7 +188,7 @@ async function convert(flags) {
 
     for (const [stageIndex, stage] of stages.entries()) {
       const payload = {
-        operation: 'convert',
+        operation: "convert",
         input: currentText,
         options: {
           from: null,
@@ -197,7 +198,7 @@ async function convert(flags) {
       const result = await runAdapter(stage.adapter, payload);
       if (result.error) {
         console.error(
-          `Error: pipeline stage ${stageIndex + 1} adapter "${stage.adapterName}" failed: ${result.error}`
+          `Error: pipeline stage ${stageIndex + 1} adapter "${stage.adapterName}" failed: ${result.error}`,
         );
         process.exitCode = 1;
         return;
@@ -211,17 +212,17 @@ async function convert(flags) {
   const adapter = findAdapter(ADAPTERS_DIR, adapterId);
   if (!adapter) {
     console.error(
-      `Error: no adapter named "${adapterId}" found. Run \`rosetta list\` to see available adapters.`
+      `Error: no adapter named "${adapterId}" found. Run \`rosetta list\` to see available adapters.`,
     );
     process.exitCode = 1;
     return;
   }
 
   const payload = {
-    operation: 'convert',
+    operation: "convert",
     input: text,
     options: {
-      from: typeof from === 'string' ? from : null,
+      from: typeof from === "string" ? from : null,
       to,
       // main direct-to flags passed as-is to adapter
       camel,
@@ -246,17 +247,22 @@ async function main() {
   const argv = process.argv.slice(2);
   const command = argv[0];
 
-  if (!command || command === 'help' || command === '--help' || command === '-h') {
+  if (
+    !command ||
+    command === "help" ||
+    command === "--help" ||
+    command === "-h"
+  ) {
     printHelp();
     return;
   }
 
-  if (command === 'list' || command === "--list-adapters") {
+  if (command === "list" || command === "--list-adapters") {
     listAdapters();
     return;
   }
 
-  if (command === 'convert') {
+  if (command === "convert") {
     const flags = parseFlags(argv.slice(1));
     await convert(flags);
     return;

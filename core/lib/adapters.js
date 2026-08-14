@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
-const fs = require('fs');
-const path = require('path');
-const { spawn } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { spawn } = require("child_process");
 
 // The set of identifier case styles every adapter is expected to support
 // for the "convert" operation. See docs/ADAPTER_CONTRACT.md.
-const VALID_CASE_STYLES = ['snake', 'camel', 'pascal', 'kebab'];
+const VALID_CASE_STYLES = ["snake", "camel", "pascal", "kebab"];
 
 /**
  * Scan a directory of adapter subdirectories and return the ones that have
@@ -27,12 +27,12 @@ function discoverAdapters(adaptersDir) {
     if (!entry.isDirectory()) continue;
 
     const adapterDir = path.join(adaptersDir, entry.name);
-    const manifestPath = path.join(adapterDir, 'adapter.json');
+    const manifestPath = path.join(adapterDir, "adapter.json");
 
     if (!fs.existsSync(manifestPath)) continue;
 
     try {
-      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
       if (!manifest.name || !manifest.run) {
         // Malformed manifest - missing required fields. Skip rather than crash
         // discovery for the whole CLI; see the "manifest schema validation"
@@ -59,7 +59,7 @@ function discoverAdapters(adaptersDir) {
 function findAdapter(adaptersDir, idOrName) {
   const adapters = discoverAdapters(adaptersDir);
   return adapters.find(
-    (a) => a.id === idOrName || a.manifest.name === idOrName
+    (a) => a.id === idOrName || a.manifest.name === idOrName,
   );
 }
 
@@ -94,28 +94,28 @@ function runAdapter(adapter, payload, { timeoutMs = 20000 } = {}) {
       return;
     }
 
-    let stdout = '';
-    let stderr = '';
+    let stdout = "";
+    let stderr = "";
     let settled = false;
 
     const timer = setTimeout(() => {
       if (settled) return;
       settled = true;
-      child.kill('SIGKILL');
+      child.kill("SIGKILL");
       resolve({
         output: null,
         error: `Adapter "${adapter.manifest.name}" timed out after ${timeoutMs}ms.`,
       });
     }, timeoutMs);
 
-    child.stdout.on('data', (chunk) => {
-      stdout += chunk.toString('utf8');
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString("utf8");
     });
-    child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString('utf8');
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString("utf8");
     });
 
-    child.on('error', (err) => {
+    child.on("error", (err) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
@@ -125,19 +125,24 @@ function runAdapter(adapter, payload, { timeoutMs = 20000 } = {}) {
       });
     });
 
-    child.on('close', (code) => {
+    child.on("close", (code) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
 
       if (code !== 0) {
-        const MAX_STDERR_LENGTH = 500;  
+        const MAX_STDERR_LENGTH = 500;
         const stderrMessage = stderr.trim();
-        const truncatedStderr = stderrMessage.length > MAX_STDERR_LENGTH ? `${stderrMessage.slice(0, MAX_STDERR_LENGTH)}...` : stderrMessage;
+        const truncatedStderr =
+          stderrMessage.length > MAX_STDERR_LENGTH
+            ? `${stderrMessage.slice(0, MAX_STDERR_LENGTH)}...`
+            : stderrMessage;
         resolve({
           output: null,
-          error: `Adapter "${adapter.manifest.name}" exited with code ${code}. ` + `Check the adapter's run command in adapter.json.` +
-          (truncatedStderr ? ` stderr: ${truncatedStderr}` : ''),
+          error:
+            `Adapter "${adapter.manifest.name}" exited with code ${code}. ` +
+            `Check the adapter's run command in adapter.json.` +
+            (truncatedStderr ? ` stderr: ${truncatedStderr}` : ""),
         });
         return;
       }
@@ -162,4 +167,9 @@ function runAdapter(adapter, payload, { timeoutMs = 20000 } = {}) {
   });
 }
 
-module.exports = { discoverAdapters, findAdapter, runAdapter, VALID_CASE_STYLES };
+module.exports = {
+  discoverAdapters,
+  findAdapter,
+  runAdapter,
+  VALID_CASE_STYLES,
+};

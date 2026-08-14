@@ -3,6 +3,6 @@
 // code, so the core's "invalid JSON on stdout" error handling can be
 // exercised.
 process.stdin.resume();
-process.stdin.on('end', () => {
-  process.stdout.write('this is not json\n');
+process.stdin.on("end", () => {
+  process.stdout.write("this is not json\n");
 });

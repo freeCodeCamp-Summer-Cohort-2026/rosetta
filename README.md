@@ -42,7 +42,11 @@ test/
 The core CLI writes a JSON payload to an adapter's stdin:
 
 ```json
-{ "operation": "convert", "input": "hello_world", "options": { "from": "snake", "to": "camel" } }
+{
+  "operation": "convert",
+  "input": "hello_world",
+  "options": { "from": "snake", "to": "camel" }
+}
 ```
 
 and reads a JSON response from its stdout:
@@ -86,10 +90,10 @@ definitions.
 
 ## Reference adapters
 
-| Language | Directory         | Manifest name        | Run command       |
-|----------|--------------------|-----------------------|--------------------|
-| PHP      | `adapters/php/`    | `php-case-converter`  | `php adapter.php`  |
-| Go       | `adapters/go/`     | `go-case-converter`   | `go run adapter.go`|
+| Language | Directory       | Manifest name        | Run command         |
+| -------- | --------------- | -------------------- | ------------------- |
+| PHP      | `adapters/php/` | `php-case-converter` | `php adapter.php`   |
+| Go       | `adapters/go/`  | `go-case-converter`  | `go run adapter.go` |
 
 ## Contributing
 
