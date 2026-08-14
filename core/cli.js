@@ -75,6 +75,7 @@ function listAdapters() {
 async function convert(flags) {
   const {
     adapter: adapterId,
+    pipeline,
     from,
     to,
     input,
@@ -86,7 +87,10 @@ async function convert(flags) {
     kebab,
   } = flags;
 
-  if (!adapterId || typeof adapterId !== 'string') {
+  if (
+    (!adapterId || typeof adapterId !== 'string') &&
+    (!pipeline || typeof pipeline !== 'string')
+  ) {
     console.error(
       'Error: --adapter <name> is required. Run `rosetta list` to see available adapters.'
     );
@@ -97,7 +101,7 @@ async function convert(flags) {
   const missingToFlag = !to || typeof to !== "string" || !VALID_CASE_STYLES.includes(to);
   const hasDirectToFlag = !!(camel || snake || pascal || kebab);
 
-  if (missingToFlag && !hasDirectToFlag) {
+  if (typeof pipeline !== 'string' && missingToFlag && !hasDirectToFlag) {
     // if the to flag was not passed and none of the "direct to" flags were passed then
     // this will throw
     console.error(
@@ -123,6 +127,37 @@ async function convert(flags) {
       'Error: provide input via --input <string> or --file <path>.'
     );
     process.exitCode = 1;
+    return;
+  }
+
+  if (typeof pipeline === 'string') {
+    const stageStrings = pipeline.split(',');
+    const stages = stageStrings.map((stageString) => {
+      const [adapterName, targetStyle] = stageString.split(':');
+      const adapter = findAdapter(ADAPTERS_DIR, adapterName);
+
+      return {
+        adapterName,
+        targetStyle,
+        adapter,
+      };
+    });
+
+    let currentText = text;
+
+    for (const stage of stages) {
+      const payload = {
+        operation: 'convert',
+        input: currentText,
+        options: {
+          from: null,
+          to: stage.targetStyle,
+        },
+      };
+      const result = await runAdapter(stage.adapter, payload);
+      currentText = result.output;
+    }
+    console.log(currentText);
     return;
   }
 
