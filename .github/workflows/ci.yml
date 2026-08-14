@@ -17,3 +17,15 @@ jobs:
           node-version: "20"
       - run: npm install
       - run: npm test
+  test-go-adapter:
+    name: Test (Go)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: adapters/go/go.mod
+      - name: Run tests
+        working-directory: adapters/go
+        run: go test
