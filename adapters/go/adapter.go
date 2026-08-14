@@ -48,7 +48,7 @@ var validStyles = map[string]bool{
 // Calculates the to format from either the direct "to" option value or
 // from the direct to values. If an invalid state is passed, then
 // the first value will return an empty string, and the second an error
-func getToFormat(o RequestOptions) (string, error) {
+func GetToFormat(o RequestOptions) (string, error) {
 	to := o.To
 
 	// direct cases
@@ -81,9 +81,9 @@ func getToFormat(o RequestOptions) (string, error) {
 	return to, nil
 }
 
-// tokenize breaks an identifier into lowercase word tokens, regardless of
+// Tokenize breaks an identifier into lowercase word tokens, regardless of
 // its original case style.
-func tokenize(identifier string) []string {
+func Tokenize(identifier string) []string {
 	identifier = strings.TrimSpace(identifier)
 
 	var parts []string
@@ -114,7 +114,8 @@ func tokenize(identifier string) []string {
 	return tokens
 }
 
-func capitalize(s string) string {
+// Capitalizes the first letter in the unicode string
+func Capitalize(s string) string {
 	if s == "" {
 		return s
 	}
@@ -135,14 +136,14 @@ func joinTokens(tokens []string, style string) (string, error) {
 			if i == 0 {
 				b.WriteString(t)
 			} else {
-				b.WriteString(capitalize(t))
+				b.WriteString(Capitalize(t))
 			}
 		}
 		return b.String(), nil
 	case "pascal":
 		var b strings.Builder
 		for _, t := range tokens {
-			b.WriteString(capitalize(t))
+			b.WriteString(Capitalize(t))
 		}
 		return b.String(), nil
 	default:
@@ -168,7 +169,7 @@ func handle(req request) response {
 
 	options := req.Options
 
-	to, toErr := getToFormat(req.Options)
+	to, toErr := GetToFormat(req.Options)
 	if toErr != nil {
 		return errorResponse(toErr.Error())
 	}
@@ -179,7 +180,7 @@ func handle(req request) response {
 		return errorResponse(fmt.Sprintf("unsupported source case: %s", from))
 	}
 
-	tokens := tokenize(req.Input)
+	tokens := Tokenize(req.Input)
 	if len(tokens) == 0 {
 		return errorResponse("could not tokenize input")
 	}
