@@ -48,7 +48,7 @@ var validStyles = map[string]bool{
 // Calculates the to format from either the direct "to" option value or
 // from the direct to values. If an invalid state is passed, then
 // the first value will return an empty string, and the second an error
-func getToFormat(o RequestOptions) (string, error) {
+func GetToFormat(o RequestOptions) (string, error) {
 	to := o.To
 
 	// direct cases
@@ -168,7 +168,7 @@ func handle(req request) response {
 
 	options := req.Options
 
-	to, toErr := getToFormat(req.Options)
+	to, toErr := GetToFormat(req.Options)
 	if toErr != nil {
 		return errorResponse(toErr.Error())
 	}
