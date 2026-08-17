@@ -90,10 +90,11 @@ definitions.
 
 ## Reference adapters
 
-| Language | Directory       | Manifest name        | Run command         |
-| -------- | --------------- | -------------------- | ------------------- |
-| PHP      | `adapters/php/` | `php-case-converter` | `php adapter.php`   |
-| Go       | `adapters/go/`  | `go-case-converter`  | `go run adapter.go` |
+| Language | Directory          | Manifest name           | Run command          |
+| -------- | ------------------ | ----------------------- | -------------------- |
+| PHP      | `adapters/php/`    | `php-case-converter`    | `php adapter.php`    |
+| Go       | `adapters/go/`     | `go-case-converter`     | `go run adapter.go`  |
+| Python   | `adapters/python/` | `python-case-converter` | `python3 adapter.py` |
 
 ## Contributing
 

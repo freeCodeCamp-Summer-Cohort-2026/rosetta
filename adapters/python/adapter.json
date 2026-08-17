@@ -1,0 +1,6 @@
+{
+    "name": "python-case-converter",
+    "language": "python",
+    "description": "converts identifier case styles using plain python",
+    "run": "python adapter.py"
+}

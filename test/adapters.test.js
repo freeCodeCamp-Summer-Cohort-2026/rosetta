@@ -85,6 +85,10 @@ test("discoverAdapters finds the reference adapters", () => {
     names.includes("go-case-converter"),
     "go adapter should be discovered",
   );
+  assert.ok(
+    names.includes("python-case-converter"),
+    "python adapter should be discovered",
+  );
 });
 
 test("PHP adapter converts snake_case to camelCase", async () => {
@@ -179,6 +183,24 @@ test("Go adapter converts direct-to camel flag to camelCase from snake_case", as
   );
   assert.equal(result.error, null);
   assert.equal(result.output, "helloWorldExample");
+});
+
+test("Python adapter converts snake_case to camelCase", async () => {
+  const adapter = findAdapter(ADAPTERS_DIR, "python-case-converter");
+  assert.ok(adapter, "python adapter must be discoverable");
+  const result = await runAdapter(
+    adapter,
+    convertPayload("hello_world_example", "camel", "snake"),
+  );
+  assert.equal(result.error, null);
+  assert.equal(result.output, "helloWorldExample");
+});
+
+test("Python adapter reports a handled error for empty input", async () => {
+  const adapter = findAdapter(ADAPTERS_DIR, "python-case-converter");
+  const result = await runAdapter(adapter, convertPayload("", "camel"));
+  assert.equal(result.output, null);
+  assert.ok(result.error);
 });
 
 // TODO: add other direct-to cases
