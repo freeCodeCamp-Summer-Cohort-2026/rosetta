@@ -10,7 +10,8 @@
     "start": "node core/cli.js",
     "test": "node --test test/*.test.js",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "benchmark": "node scripts/benchmark.js"
   },
   "engines": {
     "node": ">=18"

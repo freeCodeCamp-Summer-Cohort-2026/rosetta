@@ -35,6 +35,8 @@ adapters/
   go/           Reference adapter written in Go
 docs/
   ADAPTER_CONTRACT.md   The stdin/stdout JSON contract every adapter implements
+scripts/
+  benchmark.js  Performance harness comparing adapter round-trip times
 test/
   adapters.test.js      Spawns each adapter as a real subprocess and checks the contract round-trips
 ```
@@ -80,6 +82,9 @@ node core/cli.js convert --adapter go-case-converter --from kebab --to pascal --
 
 # Run the test suite (spawns both reference adapters for real)
 npm test
+
+# Run the benchmark harness to compare adapter latency
+npm run benchmark
 ```
 
 ## Supported case styles
