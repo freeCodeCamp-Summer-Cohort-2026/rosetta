@@ -1,0 +1,6 @@
+{
+  "name": "cpp-case-converter",
+  "language": "C++",
+  "description": "Converts identifier case styles (snake_case, camelCase, PascalCase, kebab-case) using C++.",
+  "run": "g++ adapter.cpp -o adapter && ./adapter"
+}

@@ -127,3 +127,14 @@ test("cli reads input from stdin when --input and --file are not provided", () =
 
   assert.equal(result.trim(), "helloWorld");
 });
+
+test("cli reads input from stdin when --input and --file are not provided", () => {
+  const result = execSync(
+    "node core/cli.js convert --adapter php-case-converter --to camel",
+    {
+      input: "hello_world",
+    },
+  ).toString();
+
+  assert.equal(result.trim(), "helloWorld");
+});
