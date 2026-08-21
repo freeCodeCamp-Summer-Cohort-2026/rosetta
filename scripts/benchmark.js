@@ -19,7 +19,7 @@ function calculateMedian(latencies) {
 }
 
 function appendSuffix(latency) {
-  return `${latency} ms`
+  return `${latency} ms`;
 }
 
 async function runBenchmark() {
@@ -42,7 +42,7 @@ async function runBenchmark() {
         const end = performance.now();
         latencies.push(end - start);
       }
-      
+
       latencies.sort((a, b) => a - b);
 
       const min = latencies.at(0);
