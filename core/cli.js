@@ -19,12 +19,14 @@ Usage:
   rosetta list
       List all discovered adapters.
 
-  rosetta convert --adapter <name> [--to <style> | --camel | --snake | --kebab | --pascal] [--from <style>] (--input <string> | --file <path>)
+  rosetta convert --adapter <name> [--to <style> | --camel | --snake | --kebab | --pascal] [--from <style>] (--input <string> | --file <path>) [--dry-run]
       Convert an identifier's case style using the named adapter.
 
       <style> is one of: ${VALID_CASE_STYLES.join(", ")}
 
-  rosetta convert --pipeline <adapter:style,adapter:style,...> (--input <string> | --file <path>)
+      Pass --dry-run to validate the command and print the JSON payload without running the adapter.
+
+  rosetta convert --pipeline <adapter:style,adapter:style,...> (--input <string> | --file <path>) [--dry-run]
       The pipeline requires at least two comma-separated stages, which run from left to right.
       The first stage receives the provided input.
       Each later stage receives the preceding stage's output.
