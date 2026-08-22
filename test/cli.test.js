@@ -127,3 +127,50 @@ test("cli reads input from stdin when --input and --file are not provided", () =
 
   assert.equal(result.trim(), "helloWorld");
 });
+
+test("cli dry-run shows the payload for a single adapter", () => {
+  const result = execSync(
+    "node core/cli.js convert --adapter php-case-converter --to camel --input hello_world --dry-run"
+  ).toString();
+
+  assert.equal(result.trim(), `Payload for adapter "php-case-converter":
+{
+  "operation": "convert",
+  "input": "hello_world",
+  "options": {
+    "from": null,
+    "to": "camel"
+  }
+}`);
+});
+
+test("cli dry-run shows the payload for each stage", () => {
+  const result = execSync(
+    "node core/cli.js convert --pipeline php-case-converter:camel,go-case-converter:kebab --input hello_world --dry-run"
+  ).toString();
+
+  assert.equal(result.trim(), `Stage 1 payload for adapter "php-case-converter":
+{
+  "operation": "convert",
+  "input": "hello_world",
+  "options": {
+    "from": null,
+    "to": "camel"
+  }
+}
+Stage 2 payload for adapter "go-case-converter":
+{
+  "operation": "convert",
+  "input": "hello_world",
+  "options": {
+    "from": null,
+    "to": "kebab"
+  }
+}`);
+});
+
+test ("cli dry-run with missing --to <style> flag shows regular error message", () => {
+  assert.throws(() => {
+    execSync("node core/cli.js convert --adapter go-case-converter --from kebab --input hello-world-example --dry-run")
+  }, /Error: --to <style> is required and must be one of: snake, camel, pascal, kebab, or one of the direct flags must be passed such as --camel or --pascal/);
+})

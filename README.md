@@ -78,8 +78,12 @@ node core/cli.js convert --adapter php-case-converter --from snake --to camel --
 node core/cli.js convert --adapter go-case-converter --from kebab --to pascal --input hello-world-example
 # -> HelloWorldExample
 
+# Preview the JSON payload without actually executing the adapter
+node core/cli.js convert --adapter php-case-converter --to camel --input hello-world-example --dry-run
+
 # Run the test suite (spawns both reference adapters for real)
 npm test
+
 ```
 
 ## Supported case styles
