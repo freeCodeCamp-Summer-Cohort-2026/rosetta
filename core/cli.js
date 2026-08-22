@@ -92,6 +92,7 @@ async function convert(flags) {
     snake,
     pascal,
     kebab,
+    "dry-run": dryRun,
   } = flags;
 
   if (
@@ -252,6 +253,16 @@ async function convert(flags) {
           to: stage.targetStyle,
         },
       };
+
+      if (dryRun) {
+        console.log(
+          `Stage ${stageIndex + 1} payload for adapter "${stage.adapterName}":`,
+        );
+        console.log(JSON.stringify(payload, null, 2));
+        continue;
+      }
+
+
       const result = await runAdapter(stage.adapter, payload);
       if (result.error) {
         console.error(
@@ -262,7 +273,8 @@ async function convert(flags) {
       }
       currentText = result.output;
     }
-    console.log(currentText);
+    
+    dryRun ? null : console.log(currentText);
     return;
   }
 
@@ -288,6 +300,12 @@ async function convert(flags) {
       kebab,
     },
   };
+
+  if (dryRun) {
+    console.log(`Payload for adapter "${adapterId}":`);
+    console.log(JSON.stringify(payload, null, 2));
+    return
+  }
 
   const result = await runAdapter(adapter, payload);
 
